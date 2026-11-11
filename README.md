@@ -129,13 +129,59 @@ curl -X DELETE "http://192.168.67.24:8899/api/delete?name=photo.png"
 ## 建议
 
 - **把 `images` 目录放到有备份的位置**（网络盘、定期复制），或改 `--dir` 指过去。
-- 想要开机自动启动：按 `Win+R` 输入 `shell:startup` 回车，把 `启动图床.cmd` 的
-  **快捷方式**放进去。
+- 想开机自动启动、放行防火墙、一键装好：用下面的**一键部署**。
 - 想让别人用域名访问（而不是 IP:端口）：用 IIS / Nginx / Caddy 反代到
   `http://127.0.0.1:8899`，启动时加 `--cdn-base http://你的域名`，
   这样「复制链接」给出的就是域名地址。
 - 如果之后需要「谁传的、每人配额、账号密码」，再换 Zipline 那类完整图床；
   这个脚本刻意只做「丢图 + 拿链接」一件事。
+
+## 一键部署（推荐）
+
+双击 **`部署图床.cmd`**，会自己弹出管理员授权。它做四件事：
+
+1. 把程序装到 `D:\imghost`（可用 `-DeployDir` 改）
+2. 注册开机自启（计划任务，不开登录也能起；不行就自动退回「登录后启动」，再不行退回启动文件夹）
+3. 放行防火墙端口 8899，同事才能访问
+4. 启动并做一次健康检查，失败会打印排查命令
+
+跑完会打印可以直接发给同事的局域网地址。
+
+**常用写法**（在 `imghost` 目录下开 PowerShell）：
+
+```powershell
+# 默认安装：D:\imghost，端口 8899，开机自启
+powershell -ExecutionPolicy Bypass -File deploy.ps1
+
+# 换目录、换端口、图片存到网络盘
+powershell -ExecutionPolicy Bypass -File deploy.ps1 -DeployDir D:\imghost -Port 8900 -ImageDir "Z:\图库"
+
+# 不装开机自启 / 不动防火墙
+powershell -ExecutionPolicy Bypass -File deploy.ps1 -NoAutostart -NoFirewall
+
+# 让它在「用户登录后」启动，而不是开机就起
+powershell -ExecutionPolicy Bypass -File deploy.ps1 -AtLogon
+
+# 卸载（图片目录会保留，不会被删）
+powershell -ExecutionPolicy Bypass -File deploy.ps1 -Uninstall
+```
+
+| 参数 | 说明 | 默认 |
+|---|---|---|
+| `-DeployDir` | 程序安装位置 | `D:\imghost` |
+| `-Port` | 监听端口 | `8899` |
+| `-ImageDir` | 图片目录 | `<DeployDir>\images` |
+| `-TaskName` | 计划任务名 | `imghost` |
+| `-AtLogon` | 改成登录后启动 | 关（默认开机启动） |
+| `-NoAutostart` | 不配置自启，只启动一次 | 关 |
+| `-NoFirewall` | 不动防火墙 | 关 |
+| `-Uninstall` | 卸载自启和防火墙规则 | — |
+
+重复运行是安全的：会先停旧实例，再覆盖程序文件，**图片一张都不会动**。
+
+> 部署脚本只用 Windows 自带能力（计划任务 + 防火墙 + 复制文件），
+> 不需要装任何东西。没有管理员权限时会自动降级——不装开机自启、不碰防火墙，
+> 但图床照常跑起来。
 
 ## 环境要求
 
