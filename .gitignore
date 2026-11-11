@@ -1,0 +1,22 @@
+# 运行时数据：上传的图片属于数据, 不进版本库
+images/*
+!images/.gitkeep
+
+# Python 缓存
+__pycache__/
+*.py[cod]
+
+# 之前 HTTPS 版本留下的证书目录（已废弃）
+certs/
+
+# 日志与临时文件
+*.log
+*.err
+_h.*
+_c.*
+_s.*
+_r.*
+_v.*
+_f.*
+_t_*.py
+_chk.js

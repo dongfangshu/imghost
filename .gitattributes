@@ -1,0 +1,12 @@
+* text=auto
+
+# .cmd 必须是 CRLF，否则 cmd.exe 里 () 块和 ^ 续行会出错
+*.cmd text eol=crlf
+
+# .py / .md / 配置文件保持 LF，跨平台一致
+*.py  text eol=lf
+*.md  text eol=lf
+*.js  text eol=lf
+*.json text eol=lf
+.gitignore      text eol=lf
+.gitattributes  text eol=lf
